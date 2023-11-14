@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
   let currentQuestion = 0;
   let score = 0;
   let timeRemaining = 60; // Set your desired quiz time in seconds
+  let timerInterval; // Variable to hold the timer interval
 
   const questionText = document.getElementById("question-text");
   const optionsContainer = document.getElementById("options-container");
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function startTimer() {
-      const timerInterval = setInterval(function () {
+      timerInterval = setInterval(function () {
           timeRemaining--;
           resultsContainer.textContent = `Time Remaining: ${timeRemaining}s`;
 
@@ -54,17 +55,34 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function showResult() {
+      clearInterval(timerInterval); // Stop the timer
       questionText.textContent = "Quiz finished!";
       optionsContainer.innerHTML = '';
       nextButton.style.display = 'none';
       resultsContainer.textContent = `Your score: ${score} out of ${questions.length}`;
 
+      // Assign a grade based on the score (you can customize this grading scale)
+      let grade;
+      if (score === questions.length) {
+          grade = "A+";
+      } else if (score >= Math.floor(0.9 * questions.length)) {
+          grade = "A";
+      } else if (score >= Math.floor(0.8 * questions.length)) {
+          grade = "B";
+      } else if (score >= Math.floor(0.7 * questions.length)) {
+          grade = "C";
+      } else if (score >= Math.floor(0.6 * questions.length)) {
+          grade = "D";
+      } else {
+          grade = "F";
+      }
+
       // Prompt the user for initials
       const userInitials = prompt("Enter your initials:");
 
-      // Save the score and initials to local storage
+      // Save the score, initials, and grade to local storage
       const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
-      highScores.push({ initials: userInitials, score: score });
+      highScores.push({ initials: userInitials, score: score, grade: grade });
       localStorage.setItem("highScores", JSON.stringify(highScores));
 
       // Display high scores or perform other actions as needed
@@ -74,9 +92,13 @@ document.addEventListener("DOMContentLoaded", function() {
   function displayHighScores() {
       // Retrieve high scores from local storage and display them
       const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
-      resultsContainer.textContent += "\nHigh Scores:\n";
-      highScores.forEach((entry) => {
-          resultsContainer.textContent += `${entry.initials}: ${entry.score}\n`;
+      resultsContainer.textContent = "\nHigh Scores:\n";
+
+      // Filter out entries with missing or invalid data
+      const validEntries = highScores.filter(entry => entry.initials && typeof entry.score === 'number' && entry.grade);
+
+      validEntries.forEach((entry) => {
+          resultsContainer.textContent += `${entry.initials}: ${entry.score} (${entry.grade})\n`;
       });
   }
 
