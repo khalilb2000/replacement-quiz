@@ -81,11 +81,17 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   startButton.addEventListener("click", loadQuestion);
-  nextButton.addEventListener("click", () => {
-      if (currentQuestion < questions.length) {
-          loadQuestion();
-      }
-  });
 
-  loadQuestion();
+  // Initially, hide the quiz elements
+  questionText.style.display = 'none';
+  optionsContainer.style.display = 'none';
+  nextButton.style.display = 'none';
+
+  // Show the quiz elements when the "Start Quiz" button is clicked
+  startButton.addEventListener("click", function() {
+      startButton.style.display = 'none';
+      questionText.style.display = 'block';
+      optionsContainer.style.display = 'block';
+      nextButton.style.display = 'block';
+  });
 });
